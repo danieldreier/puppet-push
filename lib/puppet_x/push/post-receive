@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+# post-receive
+# initial code from krisjordan.com/essays/setting-up-push-to-deploy-with-git
+
+def notice(message)
+  system("echo $'\\e[1G-----> #{message}'")
+end
+
+def info(message)
+  system("echo $'\\e[1G-> #{message}'")
+end
+
+# 1. Read STDIN (Format: "from_commit to_commit branch_name")
+from, to, branch = ARGF.read.split ' '
+
+branch_name = branch.split('/').last
+notice "deploying branch #{branch_name} at commit #{to}"
+
+if from == '0000000000000000000000000000000000000000'
+  notice 'this seems to be the first push'
+  changed_files = []
+else
+  changed_files = `git diff --name-only "#{from}" "#{to}"`.split
+end
+
+changed_files.each { |file| info "detected change in: #{file}" }
+
+# 3. Copy files to deploy directory
+deploy_to_dir = File.join(File.expand_path('../../../code/environments'),
+                          branch_name)
+notice 'starting r10k code deployment'
+system("r10k deploy -c $HOME/.puppet/r10k.yaml environment #{branch_name} -vp",
+       out: $stdout, err: $stdout)
+
+# 4. run puppet
+notice 'starting puppet run'
+system("sudo puppet apply #{deploy_to_dir}/site.pp", out: $stdout, err: $stdout)
+notice 'puppet run complete'
