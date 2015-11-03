@@ -19,7 +19,31 @@ Puppet::Face.define(:push, '1.0.0') do
 
     when_invoked do |*args|
       check_required_features
+      PuppetX::Push.install_puppet(args[0..-2])
       PuppetX::Push.git_setup(args[0..-2])
+      ''
+    end
+  end
+
+  action(:git_setup) do
+    summary 'create remote git repository'
+    arguments '[username@]hostname'
+
+    when_invoked do |*args|
+      check_required_features
+      PuppetX::Push.install_puppet(args[0..-2])
+      PuppetX::Push.git_setup(args[0..-2])
+      ''
+    end
+  end
+
+  action(:install) do
+    summary 'install puppet agent on a remote system'
+    arguments '[username@]hostname'
+
+    when_invoked do |*args|
+      check_required_features
+      PuppetX::Push.install_puppet(args[0..-2])
       ''
     end
   end

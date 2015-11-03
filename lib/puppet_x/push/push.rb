@@ -1,12 +1,35 @@
 require 'puppet'
+require 'sshkit'
+require 'sshkit/dsl'
+require "securerandom"
 
 module PuppetX
 end
 
 module PuppetX::Push
+  def self.install_puppet(hosts)
+    unique_run_id = SecureRandom.hex(5)
+    hosts.each do |raw_host|
+      on raw_host do |host|
+        Puppet.notice "pushing puppet install to #{host}"
+        Puppet.debug "uploading puppet install script"
+        install_script = File.open(File.join(File.dirname(__FILE__),
+                                                'install_puppet.sh'))
+        install_script_path = "/tmp/install_puppet_#{unique_run_id}.sh"
+        upload! install_script, install_script_path
+        execute("chmod +x #{install_script_path}", out: $stdout, err: $stderr)
+        Puppet.notice "executing puppet install script at #{install_script_path}"
+        puts capture("#{install_script_path}", out: $stdout, err: $stderr)
+        execute("rm -f #{install_script_path}", out: $stdout, err: $stderr)
+
+        Puppet.notice "using puppet to install git"
+        execute("puppet resource package git ensure=present", out: $stdout, err: $stderr)
+        execute("puppet resource package r10k ensure=present provider=gem", out: $stdout, err: $stderr)
+      end
+    end
+  end
+
   def self.git_setup(hosts)
-    require 'sshkit'
-    require 'sshkit/dsl'
 
     # hosts is an array of hosts names, optionally prefixed with user names:
     # hosts = ['www-data@web01.example.com', 'web02.example.com']
