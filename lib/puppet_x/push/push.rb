@@ -24,6 +24,7 @@ module PuppetX::Push
 
         Puppet.notice "using puppet to install git"
         execute("puppet resource package git ensure=present", out: $stdout, err: $stderr)
+        execute("puppet resource package sudo ensure=present", out: $stdout, err: $stderr)
         execute("puppet resource package r10k ensure=present provider=gem", out: $stdout, err: $stderr)
       end
     end
