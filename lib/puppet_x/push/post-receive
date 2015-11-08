@@ -34,5 +34,5 @@ system("r10k deploy -c $HOME/.puppet/r10k.yaml environment #{branch_name} -vp",
 
 # 4. run puppet
 notice 'starting puppet run'
-system("sudo puppet apply #{deploy_to_dir}/site.pp", out: $stdout, err: $stdout)
+system("sudo puppet apply --verbose #{deploy_to_dir}/site.pp", out: $stdout, err: $stdout)
 notice 'puppet run complete'
