@@ -19,7 +19,7 @@ module PuppetX::Push
         upload! install_script, install_script_path
         execute("chmod +x #{install_script_path}", out: $stdout, err: $stderr)
         Puppet.notice "executing puppet install script at #{install_script_path}"
-        puts capture("#{install_script_path}", out: $stdout, err: $stderr)
+        puts capture("sh #{install_script_path}", out: $stdout, err: $stderr)
         execute("rm -f #{install_script_path}", out: $stdout, err: $stderr)
 
         Puppet.notice "using puppet to install git"
@@ -51,7 +51,7 @@ module PuppetX::Push
           Puppet.notice "Creating remote git repository at #{repo_path}"
           execute("mkdir -p #{repo_path}")
           execute("mkdir -p #{deploy_path}")
-          execute("pushd #{repo_path}; git init --bare; popd")
+          execute("cd #{repo_path}; git init --bare; cd $OLDPWD")
         end
 
         # upload post-receive hook

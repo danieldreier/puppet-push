@@ -26,6 +26,10 @@ is_installed() {
     arch)
       pacman -Qi "$package" >/dev/null 2>&1 && return 0
       ;;
+    freebsd)
+      env ASSUME_ALWAYS_YES=YES pkg bootstrap >/dev/null 2>&1
+      pkg info --quiet "$package"
+      ;;
     *)
       echo "unknown package management system"
       ;;
