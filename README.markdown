@@ -67,6 +67,9 @@ deployment, an r10k webhook, etc.
 ### What push affects
 Push will create files in the ~/.puppet folder of the target system
 
+Warning: If you're on FreeBSD and not using pkgng, the puppet install script
+will automatically install it and update the system to use it.
+
 ### Setup Requirements
 
 To get started, you must have:
